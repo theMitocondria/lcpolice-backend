@@ -1,7 +1,7 @@
 import Solution from "./Models/Solution.js";
 import Contest from "./Models/Contest.js";
 import CheaterArray from "./Models/CheaterArray.js";
-import { Schema, Types } from "mongoose";
+import { Types } from "mongoose";
 
 export const getAllContests = async (req, res) => {
 	try {
@@ -137,7 +137,7 @@ export const getAllContests = async (req, res) => {
 export const getAllCheatersInContest = async (req, res) => {
 	try {
 		const { questionId } = req.params;
-		const { page_no, limit } = req.query;
+		const { page_no, limit, username } = req.query;
 		const page_No = Number(page_no) ?? 1;
 		const limit_No = Number(limit) ?? 15;
 
@@ -158,6 +158,14 @@ export const getAllCheatersInContest = async (req, res) => {
 			{
 				$replaceRoot: {
 					newRoot: "$array_of_cheaters",
+				},
+			},
+			{
+				$match: {
+					name_of_cheater: {
+						$regex: username ?? "",
+						$options: "i",
+					},
 				},
 			},
 			{
