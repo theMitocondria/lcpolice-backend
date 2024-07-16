@@ -13,6 +13,16 @@ export const getAllContests = async (req, res) => {
           localField: "cheated3Sol",
           foreignField: "_id",
           as: "cheated3SolP",
+          pipeline: [
+            {
+              $set: {
+                id: "$_id",
+              },
+            },
+            {
+              $unset: "_id",
+            },
+          ],
         },
       },
       {
@@ -21,6 +31,66 @@ export const getAllContests = async (req, res) => {
           localField: "cheated4Sol",
           foreignField: "_id",
           as: "cheated4SolP",
+          pipeline: [
+            {
+              $set: {
+                id: "$_id",
+              },
+            },
+            {
+              $unset: "_id",
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "cheater_array",
+          localField: "question3",
+          foreignField: "_id",
+          as: "question3P",
+          pipeline: [
+            {
+              $set: {
+                id: "$_id",
+              },
+            },
+            {
+              $addFields: {
+                num_of_cheaters: {
+                  $size: "$array_of_cheaters",
+                },
+              },
+            },
+            {
+              $unset: ["_id", "array_of_cheaters"],
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "cheater_array",
+          localField: "question4",
+          foreignField: "_id",
+          as: "question4P",
+          pipeline: [
+            {
+              $set: {
+                id: "$_id",
+              },
+            },
+            {
+              $addFields: {
+                num_of_cheaters: {
+                  $size: "$array_of_cheaters",
+                },
+              },
+            },
+            {
+              $unset: ["_id", "array_of_cheaters"],
+            },
+          ],
         },
       },
       {
@@ -31,10 +101,23 @@ export const getAllContests = async (req, res) => {
           cheated4Sol: {
             $first: "$cheated4SolP",
           },
+          question4: {
+            $first: "$question4P",
+          },
+          question3: {
+            $first: "$question3P",
+          },
+          id: "$_id",
         },
       },
       {
-        $unset: ["cheated3SolP", "cheated4SolP"],
+        $unset: [
+          "cheated3SolP",
+          "cheated4SolP",
+          "question3P",
+          "question4P",
+          "_id",
+        ],
       },
     ]);
     getAll.reverse();
