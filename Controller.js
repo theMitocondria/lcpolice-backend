@@ -1,5 +1,6 @@
 import Solution from "./Models/Solution.js";
 import Contest from "./Models/Contest.js";
+import CheaterArray from "./Models/CheaterArray.js";
 import { Schema, Types } from "mongoose";
 
 export const getAllContests = async (req, res) => {
@@ -135,44 +136,37 @@ export const getAllContests = async (req, res) => {
 };
 export const getAllCheatersInContest = async (req, res) => {
 	try {
-		const { contestId, questionId } = req.params;
+		const { questionId } = req.params;
 		const { page_no, limit } = req.query;
 		const page_No = Number(page_no) ?? 1;
 		const limit_No = Number(limit) ?? 15;
-		// console.log(params);{contest ka name , question number we want}(frontend se id hi bhej do)
 
-		const cheaters = await Contest.aggregate([
+		const cheaters = await CheaterArray.aggregate([
 			{
 				$match: {
-					_id: new Types.ObjectId(contestId),
+					_id: new Types.ObjectId(questionId),
 				},
 			},
 			{
-				$lookup: {
-					from: "cheater_array",
-					localField: questionId == 3 ? "question3" : "question4",
-					foreignField: "_id",
-					as: "cheaters",
-					pipeline: [
-						{
-							$project: {
-								array_of_cheaters: true,
-							},
-						},
-						{
-							$unwind: "$array_of_cheaters",
-						},
-						{
-							$skip: (page_No - 1) * limit_No,
-						},
-						{
-							$limit: limit_No,
-						},
-					],
+				$project: {
+					array_of_cheaters: true,
 				},
 			},
+			{
+				$unwind: "$array_of_cheaters",
+			},
+			{
+				$replaceRoot: {
+					newRoot: "$array_of_cheaters",
+				},
+			},
+			{
+				$skip: (page_No - 1) * limit_No,
+			},
+			{
+				$limit: limit_No,
+			},
 		]);
-		console.log(cheaters);
 
 		return res.status(200).json({
 			cheaters,
