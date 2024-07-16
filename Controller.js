@@ -1,5 +1,6 @@
 import Solution from "./Models/Solution.js";
 import Contest from "./Models/Contest.js";
+import { Schema, Types } from "mongoose";
 
 export const getAllContests = async (req, res) => {
   try {
@@ -134,18 +135,47 @@ export const getAllContests = async (req, res) => {
 };
 export const getAllCheatersInContest = async (req, res) => {
   try {
-    const { contestId, questionId } = req.params;
-    // console.log(params);
-    const name = contestId.replace(/-/g, " ");
-    console.log(name);
-    const cheaters = await Contest.findOne({ name: name });
+    const { contestId, questionId  } = req.params;
+    let { page_no , limit } = req.query;
+    page_no = Number(page_no)?? 1;
+    limit = Number(limit)?? 15;
+    // console.log(params);{contest ka name , question number we want}(frontend se id hi bhej do)
+    
+    const cheaters = await Contest.aggregate([
+      {
+        $match: {
+          _id : new Types.ObjectId(contestId)
+        }     
+      },
+      {
+        $lookup : {
+          from : "cheater_array",
+          localField : questionId == 3 ? 'question3' : 'question4',
+          foreignField : '_id',
+          as : 'cheaters',
+          pipeline : [
+            {
+              $project : {
+                'array_of_cheaters' : true
+              }
+            },
+            {
+              $unwind : '$array_of_cheaters'
+            },
+            {
+              $skip : (page_no - 1 )* limit 
+            },
+            {
+              $limit : limit
+            }
+          ]     
+        }
+      }
+    ]);
     console.log(cheaters);
-    let cheaters_sol =
-      Number(questionId) == 3 ? cheaters.question3 : cheaters.question4;
-    cheaters_sol.sort((a, b) => a.rank - b.rank);
-    console.log(cheaters_sol);
+
     return res.status(200).json({
-      cheaters_sol,
+      cheaters,
       success: true,
     });
   } catch (error) {
