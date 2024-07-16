@@ -7,6 +7,6 @@ appRouter.get("/contest/all/", getAllContests);
 //get all submissions of contest (q3,q4)
 appRouter.get("/contest/:questionId", getAllCheatersInContest)
 //get code of particular click
-appRouter.get("/solution/:contestId/rank/:rank/:questionId", getCode);
+appRouter.get("/solution/:solutionId", getCode);
 
 export default appRouter;

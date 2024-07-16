@@ -182,15 +182,9 @@ export const getAllCheatersInContest = async (req, res) => {
 
 export const getCode = async (req, res) => {
 	try {
-		const { contestId, rank, questionId } = req.params;
-		const str = String(contestId);
-		const id = str.replace(/-/g, " ");
-		console.log(id);
-		const solution = await Solution.findOne({
-			contestId: id,
-			solutionNumber: Number(questionId),
-			rank: rank,
-		});
+		const { solutionId } = req.params;
+
+		const solution = await Solution.findById(solutionId);
 
 		return res.status(200).json({
 			solution,
