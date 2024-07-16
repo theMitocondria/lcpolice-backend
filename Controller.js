@@ -4,6 +4,10 @@ import CheaterArray from "./Models/CheaterArray.js";
 import { Types } from "mongoose";
 
 export const getAllContests = async (req, res) => {
+	const { page_no, limit } = req.query;
+	const page_No = Number(page_no) ?? 1;
+	const limit_No = Number(limit) ?? 15;
+
 	try {
 		const getAll = await Contest.aggregate([
 			{
@@ -120,6 +124,12 @@ export const getAllContests = async (req, res) => {
 					"question4P",
 					"_id",
 				],
+			},
+			{
+				$skip: (page_No - 1) * limit_No,
+			},
+			{
+				$limit: limit_No,
 			},
 		]);
 		getAll.reverse();
