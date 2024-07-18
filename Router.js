@@ -1,7 +1,9 @@
 import express from "express";
 import {
 	getAllCheatersInContest,
+	getAllContestCheatersSize,
 	getAllContests,
+	getAllContestSize,
 	getCode,
 } from "./Controller.js";
 const appRouter = express.Router();
@@ -12,5 +14,7 @@ appRouter.get("/contest/all/", getAllContests);
 appRouter.get("/contest/:questionId", getAllCheatersInContest);
 //get code of particular click
 appRouter.get("/solution/:solutionId", getCode);
+appRouter.get('/getAllContest', getAllContestSize)
+appRouter.get('/getAllCheater/:id', getAllContestCheatersSize)
 
 export default appRouter;

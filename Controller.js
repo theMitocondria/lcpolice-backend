@@ -215,3 +215,35 @@ export const getCode = async (req, res) => {
 		});
 	}
 };
+
+
+export const getAllContestSize = async(req, res) => {
+	try{
+		const contests = await Contest.find({});
+		return res.status(200).json({
+			size : contests.length,
+			success: true
+		})
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+			success: false,
+		});
+	}
+}
+
+export const getAllContestCheatersSize = async(req, res) => {
+	try{
+		const {id} = req.params;
+		const cheaters = await CheaterArray.findById(id);
+		return res.status(200).json({
+			size : cheaters.array_of_cheaters.length,
+			success: true
+		})
+	} catch (error) {
+		return res.status(500).json({
+			message: error.message,
+			success: false,
+		});
+	}
+}
